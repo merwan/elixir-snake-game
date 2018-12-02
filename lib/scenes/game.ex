@@ -67,6 +67,28 @@ defmodule ElixirSnake.Scene.Game do
     {:noreply, %{state | frame_count: frame_count + 1}}
   end
 
+  def handle_input({:key, {"left", :press, _}}, _context, state) do
+    {:noreply, update_snake_direction(state,  {-1, 0})}
+  end
+
+  def handle_input({:key, {"right", :press, _}}, _context, state) do
+    {:noreply, update_snake_direction(state,  {1, 0})}
+  end
+
+  def handle_input({:key, {"up", :press, _}}, _context, state) do
+    {:noreply, update_snake_direction(state,  {0, -1})}
+  end
+
+  def handle_input({:key, {"down", :press, _}}, _context, state) do
+    {:noreply, update_snake_direction(state,  {0, 1})}
+  end
+
+  def handle_input(_input, _context, state), do: {:noreply, state}
+
+  defp update_snake_direction(state, direction) do
+    put_in(state, [:objects, :snake, :direction], direction)
+  end
+
   defp move_snake(%{objects: %{snake: snake}} = state) do
     [head | _] = snake.body
     new_head_pos = move(state, head, snake.direction)
