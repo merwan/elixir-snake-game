@@ -18,6 +18,8 @@ defmodule ElixirSnake.Scene.Game do
     # Get the view port width and height
     {:ok, %ViewPort.Status{size: {vp_width, vp_height}}} = ViewPort.info(viewport)
 
+    {:ok, timer} = :timer.send_interval(@frame_ms, :frame)
+
     # calculate number of tiles
     vp_tile_width = trunc(vp_width / @tile_size)
     vp_tile_height = trunc(vp_height / @tile_size)
@@ -28,7 +30,10 @@ defmodule ElixirSnake.Scene.Game do
       trunc(vp_tile_height / 2),
     }
 
-    {:ok, timer} = :timer.send_interval(@frame_ms, :frame)
+    pellet_start_coords = {
+      vp_tile_width - 2,
+      trunc(vp_tile_height / 2),
+    }
 
     state = %{
       viewport: viewport,
@@ -44,7 +49,8 @@ defmodule ElixirSnake.Scene.Game do
           body: [snake_start_coords],
           size: @snake_starting_size,
           direction: {1, 0},
-        }
+        },
+        pellet: pellet_start_coords,
       }
     }
 
@@ -117,6 +123,10 @@ defmodule ElixirSnake.Scene.Game do
     Enum.reduce(snake, graph, fn {x, y}, graph ->
       draw_tile(graph, x, y, fill: :lime)
     end)
+  end
+
+  defp draw_object(graph, :pellet, {pellet_x, pellet_y}) do
+    draw_tile(graph, pellet_x, pellet_y, fill: :yellow, id: :pellet)
   end
 
   defp draw_tile(graph, x, y, opts) do
