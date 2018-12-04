@@ -111,6 +111,7 @@ defmodule ElixirSnake.Scene.Game do
   when pellet_coords == new_head_pos do
     state
     |> add_score(@pellet_score)
+    |> randomize_pellet
   end
 
   defp maybe_eat_pellet(state, _), do: state
@@ -118,6 +119,14 @@ defmodule ElixirSnake.Scene.Game do
   defp add_score(state, pellet_score) do
     state
     |> put_in([:score], state.score + pellet_score)
+  end
+
+  defp randomize_pellet(%{tile_width: tile_width, tile_height: tile_height} = state) do
+    new_pellet_pos = {
+      Enum.random(0..tile_width - 1),
+      Enum.random(0..tile_height - 1),
+    }
+    put_in(state, [:objects, :pellet], new_pellet_pos)
   end
 
   defp move(%{tile_width: w, tile_height: h}, {pos_x, pos_y}, {vec_x, vec_y}) do
