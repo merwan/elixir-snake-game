@@ -126,7 +126,15 @@ defmodule ElixirSnake.Scene.Game do
       Enum.random(0..tile_width - 1),
       Enum.random(0..tile_height - 1),
     }
-    put_in(state, [:objects, :pellet], new_pellet_pos)
+    validate_pellet_position(state, new_pellet_pos)
+  end
+
+  defp validate_pellet_position(%{objects: %{snake: %{body: snake_body}}} = state, new_pellet_pos) do
+    if new_pellet_pos in snake_body do
+      randomize_pellet(state)
+    else
+      put_in(state, [:objects, :pellet], new_pellet_pos)
+    end
   end
 
   defp grow_snake(state) do
