@@ -11,6 +11,7 @@ defmodule ElixirSnake.Scene.Game do
   @tile_size 32
   @tile_radius 8
   @snake_starting_size 3
+  @pellet_score 100
 
   def init(_arg, opts) do
     viewport = opts[:viewport]
@@ -101,7 +102,22 @@ defmodule ElixirSnake.Scene.Game do
 
     new_body = Enum.take([new_head_pos | snake.body], snake.size)
 
-    put_in(state, [:objects, :snake, :body], new_body)
+    state
+    |> put_in([:objects, :snake, :body], new_body)
+    |> maybe_eat_pellet(new_head_pos)
+  end
+
+  defp maybe_eat_pellet(%{objects: %{pellet: pellet_coords}} = state, new_head_pos)
+  when pellet_coords == new_head_pos do
+    state
+    |> add_score(@pellet_score)
+  end
+
+  defp maybe_eat_pellet(state, _), do: state
+
+  defp add_score(state, pellet_score) do
+    state
+    |> put_in([:score], state.score + pellet_score)
   end
 
   defp move(%{tile_width: w, tile_height: h}, {pos_x, pos_y}, {vec_x, vec_y}) do
